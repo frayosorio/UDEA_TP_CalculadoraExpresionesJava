@@ -13,12 +13,8 @@ public class PostFijo {
     public static void setExpresionInfijo(String expresion) {
         expresionInfijo = expresion;
     }
-    
-    public static String getExpresionPostfijo(){
-        return expresionPostfijo;
-    }
-    
-    public static String getError(){
+
+    public static String getError() {
         return errorExpresion;
     }
 
@@ -190,6 +186,45 @@ public class PostFijo {
             errorExpresion = "Error obteniendo variables";
             return null;
         }
+    }
+
+    public static ArbolBinario getArbol() {
+
+        Stack p = new Stack();
+        TipoOperando tipo = TipoOperando.NINGUNO;
+
+        int i = 0;
+        String texto = "";
+        while (i < expresionPostfijo.length() && errorExpresion.equals("")) {
+            String caracter = expresionPostfijo.substring(i, i + 1);
+
+            if (PostFijo.esLetra(caracter) && tipo == TipoOperando.CONSTANTE) {
+                errorExpresion = "Una constante numérica no puede tener letras";
+            } else if ((PostFijo.esLetra(caracter) && tipo != TipoOperando.CONSTANTE) || (PostFijo.esDigito(caracter) && tipo == TipoOperando.VARIABLE)) {
+                tipo = TipoOperando.VARIABLE;
+                texto = texto + caracter;
+            } else if (PostFijo.esDigito(caracter) && tipo != TipoOperando.VARIABLE) {
+                tipo = TipoOperando.CONSTANTE;
+                texto = texto + caracter;
+            } else if (caracter.equals(" ") && tipo != TipoOperando.NINGUNO) {
+                Nodo nOperando = new Nodo(texto, tipo);
+                p.push(nOperando);
+                texto = "";
+                tipo = TipoOperando.NINGUNO;
+            } else {
+                caracter = expresionPostfijo.substring(i, i + 1);
+                if (PostFijo.esOperador(caracter)) {
+                    Nodo nOperador = new Nodo(caracter, TipoOperando.NINGUNO);
+                    Nodo nDerecho = (Nodo) p.pop();
+                    Nodo nIzquierdo = (Nodo) p.pop();
+                    nOperador.izquierdo = nIzquierdo;
+                    nOperador.derecho = nDerecho;
+                    p.push(nOperador);
+                }
+            }
+            i++;
+        }
+        return errorExpresion.equals("") ? new ArbolBinario((Nodo) p.pop()) : null;
     }
 
 }

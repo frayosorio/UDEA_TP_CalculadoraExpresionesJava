@@ -6,18 +6,16 @@
 package calculadoraexpresiones;
 
 import java.util.List;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 
-
-/**
- *
- * @author USUARIO
- */
 public class FrmCalculadora extends javax.swing.JFrame {
 
-    /**
-     * Creates new form FrmCalculadora
-     */
+   
+    List<String> variables;
+    
     public FrmCalculadora() {
         initComponents();
     }
@@ -37,6 +35,7 @@ public class FrmCalculadora extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tblVariables = new javax.swing.JTable();
         btnAnalizar = new javax.swing.JButton();
+        btnEjecutar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -64,6 +63,13 @@ public class FrmCalculadora extends javax.swing.JFrame {
             }
         });
 
+        btnEjecutar.setText("Ejecutar");
+        btnEjecutar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEjecutarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -72,7 +78,8 @@ public class FrmCalculadora extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1)
-                    .addComponent(jLabel2))
+                    .addComponent(jLabel2)
+                    .addComponent(btnEjecutar))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -92,9 +99,13 @@ public class FrmCalculadora extends javax.swing.JFrame {
                     .addComponent(txtExpresion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(30, 30, 30)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnAnalizar))
+                    .addComponent(btnAnalizar)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jLabel2)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnEjecutar))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(47, Short.MAX_VALUE))
         );
 
@@ -102,18 +113,34 @@ public class FrmCalculadora extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAnalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalizarActionPerformed
+        //Asignar la expresion INFIJO leida
         PostFijo.setExpresionInfijo(txtExpresion.getText());
+        //Obtener la expresion POSTFIJO respectiva
+        PostFijo.obtenerPostfijo();
+        //Verificar que no haya sucedido error
+        if (PostFijo.getError().equals("")) {
+            //Obtener los nombres de variables que hay en la expresión
+            variables = PostFijo.getVariables();
+            if (variables != null) {
+                //Mostrar las variables en una tabla
+                String[][] datos = new String[variables.size()][2];
+                for (int i = 0; i < variables.size(); i++) {
+                    datos[i][0] = variables.get(i);
+                }
 
-        String postFijo = PostFijo.obtenerPostfijo();
-        List<String> variables = PostFijo.getVariables();
-        String error = PostFijo.getError();
-
-        System.out.println(postFijo);
-
-        variables.forEach((variable) -> System.out.println(variable));
-
-        System.out.println(error);
+                DefaultTableModel dtm = new DefaultTableModel(datos, new String[]{"Variable", "Valor"});
+                tblVariables.setModel(dtm);
+            }
+        } else {
+            JOptionPane.showMessageDialog(new JFrame(), PostFijo.getError());
+        }
     }//GEN-LAST:event_btnAnalizarActionPerformed
+
+    private void btnEjecutarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEjecutarActionPerformed
+        ArbolBinario ab=PostFijo.getArbol();
+        System.out.println(ab.mostrarInOrden());
+        System.out.println(ab.mostrarPostOrden());
+    }//GEN-LAST:event_btnEjecutarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -152,6 +179,7 @@ public class FrmCalculadora extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAnalizar;
+    private javax.swing.JButton btnEjecutar;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
