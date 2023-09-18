@@ -30,6 +30,10 @@ public class Nodo {
         return valor;
     }
 
+    public TipoOperando getTipo() {
+        return tipo;
+    }
+
     public double getValorNumerico() {
         try {
             if (tipo == TipoOperando.CONSTANTE) {
